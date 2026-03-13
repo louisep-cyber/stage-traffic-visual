@@ -82,7 +82,35 @@
   }
   .nav-btn:hover { background: #1e1e1e; }
   .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .nav-btn.edit-active { background: var(--green); color: #000; border-color: var(--green); }
   .slide-counter { font-size: 12px; color: var(--muted); }
+
+  /* Edit mode */
+  body.edit-mode [contenteditable] {
+    outline: none;
+    border-radius: 4px;
+    cursor: text;
+  }
+  body.edit-mode [contenteditable]:hover {
+    background: rgba(255,255,255,0.05);
+  }
+  body.edit-mode [contenteditable]:focus {
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.15);
+  }
+  .edit-banner {
+    display: none;
+    background: rgba(29,185,84,0.12);
+    border-bottom: 1px solid rgba(29,185,84,0.25);
+    text-align: center;
+    padding: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--green);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  body.edit-mode .edit-banner { display: block; }
 
   /* Typography */
   .label {
@@ -223,6 +251,7 @@
 </head>
 <body>
 
+<div class="edit-banner">✏ Edit mode — click any text to edit</div>
 <div class="slides">
 
   <!-- SLIDE 1: Title -->
@@ -589,6 +618,7 @@
 
 <!-- Navigation -->
 <div class="nav">
+  <button class="nav-btn" id="edit-btn" onclick="toggleEdit()">✏ Edit</button>
   <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
   <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
     <div class="nav-dots" id="nav-dots"></div>
@@ -626,9 +656,30 @@
   function changeSlide(dir) { goTo(current + dir); }
 
   document.addEventListener('keydown', e => {
+    if (document.activeElement && document.activeElement.isContentEditable) return;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
     if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
   });
+
+  let editMode = false;
+  const editableSelectors = 'h1, h2, h3, p, li, .label, .card-label, .card-value, .card-desc, .key-message, .subtitle, .tag, .rec-content h3, .rec-content p';
+
+  function toggleEdit() {
+    editMode = !editMode;
+    const btn = document.getElementById('edit-btn');
+    document.body.classList.toggle('edit-mode', editMode);
+    btn.textContent = editMode ? '✓ Done' : '✏ Edit';
+    btn.classList.toggle('edit-active', editMode);
+
+    document.querySelectorAll('.slides ' + editableSelectors).forEach(el => {
+      if (editMode) {
+        el.setAttribute('contenteditable', 'true');
+        el.setAttribute('spellcheck', 'false');
+      } else {
+        el.removeAttribute('contenteditable');
+      }
+    });
+  }
 </script>
 </body>
 </html>
