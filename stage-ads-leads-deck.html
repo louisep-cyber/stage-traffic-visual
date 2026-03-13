@@ -630,12 +630,20 @@
 
 <script>
   const STORAGE_KEY = 'stage-deck-edits';
-  const editableSelectors = 'h1, h2, h3, p, li, .label, .card-label, .card-value, .card-desc, .key-message, .subtitle, .tag, .rec-content h3, .rec-content p';
 
-  // Assign stable data-ids to all editable elements
-  document.querySelectorAll('.slides ' + editableSelectors).forEach((el, i) => {
-    el.dataset.eid = i;
-  });
+  // Find all elements inside .slides that have direct text content
+  function getTextElements() {
+    return Array.from(document.querySelectorAll('.slides *')).filter(el => {
+      if (['SCRIPT','STYLE','SVG','BUTTON'].includes(el.tagName)) return false;
+      if (el.closest('.nav')) return false;
+      return Array.from(el.childNodes).some(
+        n => n.nodeType === 3 && n.textContent.trim().length > 0
+      );
+    });
+  }
+
+  // Assign stable data-ids to all text elements
+  getTextElements().forEach((el, i) => { el.dataset.eid = i; });
 
   // Load saved edits from localStorage
   function loadEdits() {
@@ -709,7 +717,7 @@
     btn.textContent = editMode ? '✓ Done' : '✏ Edit';
     btn.classList.toggle('edit-active', editMode);
 
-    document.querySelectorAll('.slides ' + editableSelectors).forEach(el => {
+    getTextElements().forEach(el => {
       if (editMode) {
         el.setAttribute('contenteditable', 'true');
         el.setAttribute('spellcheck', 'false');
