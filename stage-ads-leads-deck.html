@@ -750,7 +750,13 @@
       const merged = Object.assign({}, BAKED_EDITS, saved);
 
       const apiUrl = 'https://api.github.com/repos/louisep-cyber/stage-traffic-visual/contents/stage-ads-leads-deck.html';
-      const tok = ['github','pat','11B747HNA0RUnNvCbh6XiB','nYiUKA4yNw5C0iOrYWdzzVUfMQuHpFMTKgM2JmczGcADU4K3UXXjxH5pi1W'].join('_');
+      let tok = localStorage.getItem('stage-deck-token');
+      if (!tok) {
+        tok = prompt('Enter your GitHub publish token:');
+        if (!tok) { btn.textContent = '🚀 Publish'; btn.disabled = false; return; }
+        localStorage.setItem('stage-deck-token', tok.trim());
+      }
+      tok = tok.trim();
       const headers = {
         'Authorization': 'Bearer ' + tok,
         'Content-Type': 'application/json'
@@ -759,7 +765,10 @@
       // Get current file SHA
       const fileRes = await fetch(apiUrl, { headers });
       const fileData = await fileRes.json();
-      if (!fileRes.ok) throw new Error(`Fetch failed ${fileRes.status}: ${fileData.message}`);
+      if (!fileRes.ok) {
+        if (fileRes.status === 401) localStorage.removeItem('stage-deck-token');
+        throw new Error(`Fetch failed ${fileRes.status}: ${fileData.message}`);
+      }
       const sha = fileData.sha;
       const currentContent = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
 
