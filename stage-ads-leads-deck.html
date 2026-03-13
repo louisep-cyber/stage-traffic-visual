@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Stage – Ads Leads Discussion</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #1DB954;
+    --blue: #60a5fa;
+    --amber: #F59E0B;
+    --red: #f87171;
+    --bg: #0a0a0a;
+    --card: #141414;
+    --border: #232323;
+    --muted: #555;
+    --subtle: #333;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Slide container */
+  .slides {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    padding: 52px 72px;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .slide.active { display: flex; }
+
+  /* Nav */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 72px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .nav-dots { display: flex; gap: 6px; align-items: center; }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--subtle);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dot.active { background: #fff; width: 18px; border-radius: 3px; }
+  .nav-btns { display: flex; gap: 10px; }
+  .nav-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.15s;
+  }
+  .nav-btn:hover { background: #1e1e1e; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .slide-counter { font-size: 12px; color: var(--muted); }
+
+  /* Typography */
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  h1 { font-size: 52px; font-weight: 900; line-height: 1.05; }
+  h2 { font-size: 36px; font-weight: 800; line-height: 1.1; margin-bottom: 32px; }
+  h3 { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+
+  .subtitle { font-size: 18px; color: #888; font-weight: 400; margin-top: 12px; line-height: 1.5; }
+  .key-message {
+    font-size: 13px;
+    color: var(--green);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+    padding: 10px 14px;
+    background: rgba(29,185,84,0.08);
+    border-left: 3px solid var(--green);
+    border-radius: 0 6px 6px 0;
+  }
+
+  /* Cards & grids */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+  .card-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+  .card-desc { font-size: 12px; color: #666; margin-top: 6px; }
+
+  /* Lists */
+  ul.deck-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  ul.deck-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 15px;
+    color: #ccc;
+    line-height: 1.5;
+  }
+  ul.deck-list li::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+  ul.deck-list li.amber::before { background: var(--amber); }
+  ul.deck-list li.red::before { background: var(--red); }
+  ul.deck-list li.blue::before { background: var(--blue); }
+
+  /* Traffic bar */
+  .traffic-bar {
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+    margin: 8px 0 4px;
+  }
+  .traffic-seg { height: 100%; }
+
+  /* Challenges */
+  .challenge-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .challenge-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .challenge-card p { font-size: 12px; color: #666; line-height: 1.5; }
+
+  /* Recommendation steps */
+  .rec-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .rec-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #000;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .rec-content h3 { font-size: 15px; margin-bottom: 4px; }
+  .rec-content p { font-size: 13px; color: #666; line-height: 1.5; }
+
+  /* Divider */
+  .divider { width: 48px; height: 3px; background: var(--green); margin: 18px 0; border-radius: 2px; }
+
+  /* Tag */
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .tag-green { background: rgba(29,185,84,0.15); color: var(--green); }
+  .tag-amber { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .tag-blue  { background: rgba(96,165,250,0.15); color: var(--blue); }
+
+  /* Two col layout helper */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; align-items: start; }
+
+  /* Progress bar */
+  .progress-wrap { margin-top: 10px; }
+  .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .progress-label { font-size: 12px; color: #888; width: 140px; flex-shrink: 0; }
+  .progress-bar-outer { flex: 1; height: 6px; background: var(--subtle); border-radius: 3px; overflow: hidden; }
+  .progress-bar-inner { height: 100%; border-radius: 3px; }
+  .progress-pct { font-size: 12px; font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="slides">
+
+  <!-- SLIDE 1: Title -->
+  <div class="slide active" id="slide-1">
+    <div class="label">Ads Leads · March 17, 2026</div>
+    <h1>The Stage</h1>
+    <h1 style="color: var(--green);">Where do we go<br>from here?</h1>
+    <div class="divider"></div>
+    <p class="subtitle">A reality check on what The Stage is, who it serves,<br>what it costs — and what we recommend for 2026 and beyond.</p>
+    <div style="margin-top:40px; font-size:13px; color: var(--muted);">Gearóid O'Rourke &nbsp;·&nbsp; Louise Peterson</div>
+  </div>
+
+  <!-- SLIDE 2: Agenda -->
+  <div class="slide" id="slide-2">
+    <div class="label">Agenda</div>
+    <h2>What we're covering today</h2>
+    <div style="display:flex; flex-direction:column; gap:12px; max-width:560px;">
+      <div class="card" style="display:flex; align-items:center; gap:16px; padding:16px 20px;">
+        <div style="font-size:22px; font-weight:900; color:var(--green); width:28px;">1</div>
+        <div>
+          <div style="font-weight:600; font-size:15px;">Reality baseline</div>
+          <div style="font-size:12px; color:#666; margin-top:2px;">What is The Stage, who uses it, and what does it cost?</div>
+        </div>
+      </div>
+      <div class="card" style="display:flex; align-items:center; gap:16px; padding:16px 20px;">
+        <div style="font-size:22px; font-weight:900; color:var(--amber); width:28px;">2</div>
+        <div>
+          <div style="font-weight:600; font-size:15px;">Specific challenges</div>
+          <div style="font-size:12px; color:#666; margin-top:2px;">Why the current Stage is not meeting the bar of an ad product</div>
+        </div>
+      </div>
+      <div class="card" style="display:flex; align-items:center; gap:16px; padding:16px 20px;">
+        <div style="font-size:22px; font-weight:900; color:var(--blue); width:28px;">3</div>
+        <div>
+          <div style="font-weight:600; font-size:15px;">Strategic fit</div>
+          <div style="font-size:12px; color:#666; margin-top:2px;">Where does The Stage sit in our sponsorship strategy?</div>
+        </div>
+      </div>
+      <div class="card" style="display:flex; align-items:center; gap:16px; padding:16px 20px;">
+        <div style="font-size:22px; font-weight:900; color:#fff; width:28px;">4</div>
+        <div>
+          <div style="font-weight:600; font-size:15px;">Recommendation</div>
+          <div style="font-size:12px; color:#666; margin-top:2px;">What we propose for 2026 — and the path to 2027</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: What is The Stage -->
+  <div class="slide" id="slide-3">
+    <div class="label">Reality Baseline · 1 of 4</div>
+    <h2>What is The Stage?</h2>
+    <div class="key-message">The Stage is actually a bundle of things. These things probably have different futures.</div>
+    <div class="grid-2" style="gap:14px;">
+      <div class="card">
+        <div class="card-label">Ad Product</div>
+        <p style="font-size:13px; color:#aaa; line-height:1.6;">Rich-media, full-screen advertising experience sold to brand advertisers. Includes both custom builds and templated (GA) executions.</p>
+      </div>
+      <div class="card">
+        <div class="card-label">Platform</div>
+        <p style="font-size:13px; color:#aaa; line-height:1.6;">An embedded webview within Spotify's mobile apps. Delivers authenticated web experiences that leverage native mobile features — playback, sharing, playlist adds, data-driven stories.</p>
+      </div>
+      <div class="card">
+        <div class="card-label">Stage Studio & Improv</div>
+        <p style="font-size:13px; color:#aaa; line-height:1.6;">Self-serve CMS used by creative production vendors to build and manage Stage experiences. Improv supports the templated product — currently used by one internal team.</p>
+      </div>
+      <div class="card">
+        <div class="card-label">Consumer Experience</div>
+        <p style="font-size:13px; color:#aaa; line-height:1.6;">The Stage powers key Spotify consumer products including Wrapped, Playlist Cover Art, and Library Import — experiences used by tens of millions of users.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Who are the customers -->
+  <div class="slide" id="slide-4">
+    <div class="label">Reality Baseline · 2 of 4</div>
+    <h2>Who are the customers?</h2>
+    <div class="key-message">The biggest customer is Spotify itself — most Ads leads are not aware of this.</div>
+    <div class="two-col">
+      <div>
+        <div style="margin-bottom:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:14px; font-weight:600;">Spotify</span>
+            <span style="font-size:18px; font-weight:900; color:var(--green);">98%</span>
+          </div>
+          <div class="traffic-bar">
+            <div class="traffic-seg" style="width:50%; background:#1DB954;"></div>
+            <div class="traffic-seg" style="width:24%; background:#4ade80;"></div>
+            <div class="traffic-seg" style="width:24%; background:#60a5fa;"></div>
+            <div class="traffic-seg" style="width:2%; background:#F59E0B;"></div>
+          </div>
+          <div style="font-size:11px; color:var(--muted); margin-top:4px;">Traffic share across all Stage sessions</div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="card" style="padding:14px 16px;">
+            <div style="font-size:11px; font-weight:700; color:var(--green); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">Experience · 74% of traffic</div>
+            <div class="progress-wrap">
+              <div class="progress-row">
+                <span class="progress-label">Wrapped</span>
+                <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:68%; background:#1DB954;"></div></div>
+                <span class="progress-pct" style="color:#1DB954;">50%</span>
+              </div>
+              <div class="progress-row">
+                <span class="progress-label">Playlist Cover Art</span>
+                <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:33%; background:#4ade80;"></div></div>
+                <span class="progress-pct" style="color:#4ade80;">~14%</span>
+              </div>
+              <div class="progress-row">
+                <span class="progress-label">Library Import</span>
+                <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:15%; background:#86efac;"></div></div>
+                <span class="progress-pct" style="color:#86efac;">~10%</span>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="padding:14px 16px;">
+            <div style="font-size:11px; font-weight:700; color:var(--blue); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">Consumer Marketing · 24% of traffic</div>
+            <p style="font-size:12px; color:#666;">Many of these applications could be revenue-generating.</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="border-color: rgba(245,158,11,0.3);">
+          <div style="font-size:11px; font-weight:700; color:var(--amber); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px;">Advertisers · 2% of traffic</div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="padding:12px 14px; background:#1a1a1a; border-radius:8px;">
+              <div style="font-size:13px; font-weight:600; margin-bottom:4px;">Custom <span class="tag tag-amber">63% of campaigns</span></div>
+              <div style="font-size:12px; color:#666;">Bespoke builds; preferred by clients and sales. Drive 76% of advertising revenue.</div>
+            </div>
+            <div style="padding:12px 14px; background:#1a1a1a; border-radius:8px;">
+              <div style="font-size:13px; font-weight:600; margin-bottom:4px;">Templated (Stage GA) <span class="tag tag-green">37% of campaigns</span></div>
+              <div style="font-size:12px; color:#666;">Self-serve template product. Drive 24% of advertising revenue.</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:14px; font-size:12px; color:var(--muted); line-height:1.6; padding:0 4px;">
+          217 campaigns tracked in 2025 (Custom + Templated). 7 additional rows had no type label.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Value Generation -->
+  <div class="slide" id="slide-5">
+    <div class="label">Reality Baseline · 3 of 4</div>
+    <h2>Value generation</h2>
+    <div class="key-message">Value is generated through ads revenue (small) and through enablement of other teams (hard to put a $ amount on).</div>
+    <div class="two-col">
+      <div>
+        <h3 style="font-size:15px; color:var(--muted); font-weight:600; margin-bottom:16px;">Ads Revenue · 2025</h3>
+        <div style="display:flex; gap:14px; margin-bottom:20px;">
+          <div class="card" style="flex:1;">
+            <div class="card-label">Total Revenue</div>
+            <div class="card-value" style="color:var(--green); font-size:26px;">€15.3M</div>
+            <div class="card-desc">Driven by Stage-associated campaigns in 2025</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-bottom:16px;">
+          <div class="card" style="flex:1; padding:14px 16px;">
+            <div class="card-label">Rev / Site · US</div>
+            <div style="font-size:20px; font-weight:800; color:#fff;">€283,725</div>
+          </div>
+          <div class="card" style="flex:1; padding:14px 16px;">
+            <div class="card-label">Rev / Site · RoW</div>
+            <div style="font-size:20px; font-weight:800; color:#fff;">€93,416</div>
+            <div class="card-desc">More templates → lower rev/site</div>
+          </div>
+        </div>
+        <div style="background:#111; border-radius:10px; padding:14px 16px; border: 1px solid var(--border);">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span style="font-size:12px; color:#888;">Custom (136 campaigns)</span>
+            <span style="font-size:13px; font-weight:700; color:var(--amber);">76%</span>
+          </div>
+          <div style="height:6px; background:var(--subtle); border-radius:3px; overflow:hidden; margin-bottom:10px;">
+            <div style="width:76%; height:100%; background:var(--amber); border-radius:3px;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span style="font-size:12px; color:#888;">Templated (81 campaigns)</span>
+            <span style="font-size:13px; font-weight:700; color:var(--blue);">24%</span>
+          </div>
+          <div style="height:6px; background:var(--subtle); border-radius:3px; overflow:hidden;">
+            <div style="width:24%; height:100%; background:var(--blue); border-radius:3px;"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:15px; color:var(--muted); font-weight:600; margin-bottom:16px;">Enablement Value</h3>
+        <ul class="deck-list">
+          <li><strong style="color:#fff;">Experience team</strong> views The Stage as a "cheap" solution for features too expensive to build natively.</li>
+          <li><strong style="color:#fff;">Consumer Marketing</strong> describes it as one of the few resources available for hosting branded, partnership content.</li>
+          <li class="amber">Advertisers value the Stage for <strong style="color:#fff;">splashy, unique, customizable activations</strong> — and are willing to pay for them.</li>
+        </ul>
+        <div style="margin-top:20px; padding:14px 16px; background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.2); border-radius:10px;">
+          <p style="font-size:12px; color:#aaa; line-height:1.6;">Client and sales preference is strongly toward custom executions over Stage GA. Templates are seen as a lower-tier offering. <a href="https://docs.google.com/presentation/d/1LG5YrfFbt0o7GIANjOxXDHy4QXvNi_7LOhNn1gcjeO0" style="color:var(--green); font-size:11px;">Source →</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Cost Base -->
+  <div class="slide" id="slide-6">
+    <div class="label">Reality Baseline · 4 of 4</div>
+    <h2>Cost base</h2>
+    <div class="key-message">Nothing is free. The Stage costs us $$$s, team time, offering clarity, and team focus.</div>
+    <div class="three-col">
+      <div class="card" style="border-color:rgba(248,113,113,0.3);">
+        <div class="card-label" style="color:var(--red);">Ads Production Costs</div>
+        <div style="font-size:26px; font-weight:900; color:var(--red); margin-bottom:8px;">€562K</div>
+        <p style="font-size:12px; color:#666; line-height:1.6; margin-bottom:10px;">Total production costs in 2025 — <strong style="color:#aaa;">4%</strong> of total associated revenue.</p>
+        <p style="font-size:11px; color:var(--muted);">Production costs for Experience and Consumer Marketing campaigns are unknown.</p>
+      </div>
+      <div class="card" style="border-color:rgba(245,158,11,0.3);">
+        <div class="card-label" style="color:var(--amber);">Team Costs</div>
+        <div style="font-size:18px; font-weight:800; color:#fff; margin-bottom:8px;">1 EM + 4 IC Eng</div>
+        <p style="font-size:12px; color:#666; line-height:1.6; margin-bottom:10px;"><strong style="color:#aaa;">90%</strong> of squad capacity is spent maintaining the Stage — driven primarily by internal feature requests.</p>
+        <p style="font-size:11px; color:var(--muted);">Remaining 10% on Scannables, which has alignment to deprecate.</p>
+      </div>
+      <div class="card" style="border-color:rgba(96,165,250,0.3);">
+        <div class="card-label" style="color:var(--blue);">Strategic Cost</div>
+        <div style="font-size:15px; font-weight:700; color:#fff; margin-bottom:8px;">Clarity &amp; Focus</div>
+        <p style="font-size:12px; color:#666; line-height:1.6;">Maintaining a platform that primarily services features without clear revenue attribution creates confusing incentives — especially when revenue-driving initiatives are underresourced.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: Challenges -->
+  <div class="slide" id="slide-7">
+    <div class="label">Specific Challenges</div>
+    <h2>Not built to the standard<br>of an ad product</h2>
+    <div class="key-message">These gaps cost us in measurement, consumer trust, and perceived value.</div>
+    <div class="grid-2" style="gap:14px;">
+      <div class="challenge-card" style="border-color:rgba(248,113,113,0.3);">
+        <h3 style="color:var(--red);">Measurement &amp; Attribution</h3>
+        <ul class="deck-list" style="gap:6px;">
+          <li class="red" style="font-size:13px;">We don't understand the true performance of the ad product</li>
+          <li class="red" style="font-size:13px;">We don't have an accurate revenue picture</li>
+          <li class="red" style="font-size:13px;">We don't report on value accurately</li>
+        </ul>
+      </div>
+      <div class="challenge-card" style="border-color:rgba(245,158,11,0.3);">
+        <h3 style="color:var(--amber);">Breaks Core Spotify Consumer UX</h3>
+        <ul class="deck-list" style="gap:6px;">
+          <li class="amber" style="font-size:13px;">Takes users out of their consumption context</li>
+          <li class="amber" style="font-size:13px;">Hides play controls</li>
+          <li class="amber" style="font-size:13px;">Doesn't allow seamless navigation in and out</li>
+        </ul>
+      </div>
+      <div class="challenge-card" style="border-color:rgba(96,165,250,0.3);">
+        <h3 style="color:var(--blue);">Addiction to Driver Media</h3>
+        <ul class="deck-list" style="gap:6px;">
+          <li class="blue" style="font-size:13px;">No organic activity associated with the Stage</li>
+          <li class="blue" style="font-size:13px;">Pure driver media play limits value, reach, and quality</li>
+        </ul>
+      </div>
+      <div class="challenge-card" style="border-color:rgba(255,255,255,0.1);">
+        <h3 style="color:#aaa;">Lack of Product Novelty</h3>
+        <ul class="deck-list" style="gap:6px;">
+          <li style="font-size:13px;">"We have nothing new to pitch"</li>
+          <li style="font-size:13px;">Stagnant product limits sales excitement and client renewal</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: Strategic Fit -->
+  <div class="slide" id="slide-8">
+    <div class="label">Sponsorship Strategy</div>
+    <h2>Where does The Stage fit?</h2>
+    <div class="key-message">There is a place for custom brand activations on Spotify — but today's Stage is a very imperfect meeting of that need. We should do better.</div>
+    <div style="display:flex; flex-direction:column; gap:14px; max-width:680px;">
+      <div class="card" style="border-color:rgba(29,185,84,0.3); padding:18px 22px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <div style="width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0;"></div>
+          <span style="font-weight:700; font-size:14px;">There IS a space in our sponsorship offering</span>
+        </div>
+        <p style="font-size:13px; color:#888; line-height:1.6;">A very-custom integration with Spotify has a home in our portfolio — <strong style="color:#ccc;">but only if priced appropriately</strong> and if it delivers true listener value.</p>
+      </div>
+      <div class="card" style="border-color:rgba(245,158,11,0.3); padding:18px 22px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <div style="width:8px; height:8px; border-radius:50%; background:var(--amber); flex-shrink:0;"></div>
+          <span style="font-weight:700; font-size:14px;">Today's Stage is the closest thing we have — but it's imperfect</span>
+        </div>
+        <p style="font-size:13px; color:#888; line-height:1.6;">As covered: measurement gaps, UX issues, driver dependency, and no new product to pitch. It approximates the vision, but falls short.</p>
+      </div>
+      <div class="card" style="border-color:rgba(96,165,250,0.3); padding:18px 22px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <div style="width:8px; height:8px; border-radius:50%; background:var(--blue); flex-shrink:0;"></div>
+          <span style="font-weight:700; font-size:14px;">We believe we DO need an offering in this space</span>
+        </div>
+        <p style="font-size:13px; color:#888; line-height:1.6;">The question is whether we evolve The Stage or build toward something more strategically aligned. We recommend doing both in parallel.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Recommendation -->
+  <div class="slide" id="slide-9">
+    <div class="label">Recommendation</div>
+    <h2>Our proposal for 2026</h2>
+    <div class="key-message">The Stage as it exists today is here for 2026 — but not 2027. We use the rest of 2026 to build the bridge to something better.</div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div class="rec-item">
+        <div class="rec-num">1</div>
+        <div class="rec-content">
+          <h3>Enter maintenance mode on the Stage ad product for 2026</h3>
+          <p>No new investment in the ad product itself. Hold the line.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num" style="background:var(--amber);">2</div>
+        <div class="rec-content">
+          <h3>Pause development on Studio and Improv entirely</h3>
+          <p>Free up capacity. No new feature development on the CMS tooling.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num" style="background:var(--blue);">3</div>
+        <div class="rec-content">
+          <h3>Build a tech strategy and staffing plan for Stage Platform ownership</h3>
+          <p>Security review. Determine resourcing: if we keep the platform, we need 1 SR PM + additional engineers to support it AND deliver sponsorship work.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num" style="background:var(--red);">4</div>
+        <div class="rec-content">
+          <h3>Spike: what would it take to normalise the Stage as a strategic ad product?</h3>
+          <p>Logging & measurement, pricing thresholds, spin down Stage GA, organic distribution, fix consumer UX, re-evaluate driver package.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num" style="background:#7c3aed;">5</div>
+        <div class="rec-content">
+          <h3>Continue building alternative sponsorship value through new products</h3>
+          <p><strong style="color:#ccc;">Now:</strong> Compound Sponsored Playlists &nbsp;·&nbsp; <strong style="color:#ccc;">Next:</strong> Beefed-up takeover via app open &nbsp;·&nbsp; <strong style="color:#ccc;">Next next:</strong> Sponsored Premium Day, Sound Capsule, Premium Features</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: Open Questions -->
+  <div class="slide" id="slide-10">
+    <div class="label">Discussion</div>
+    <h2>Open questions for the room</h2>
+    <div style="display:flex; flex-direction:column; gap:14px; max-width:640px;">
+      <div class="card" style="border-color:rgba(248,113,113,0.3); padding:20px 24px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--red); margin-bottom:8px;">Resourcing</div>
+        <p style="font-size:15px; line-height:1.6; color:#ddd;">Can we afford to keep resourcing The Stage — even in maintenance mode — while also pursuing the products that will replace it?</p>
+      </div>
+      <div class="card" style="border-color:rgba(96,165,250,0.3); padding:20px 24px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--blue); margin-bottom:8px;">Strategic Value</div>
+        <p style="font-size:15px; line-height:1.6; color:#ddd;">Does the platform have true strategic value for Ads? Or are we holding onto it for sentimental / inertia reasons?</p>
+        <div style="display:flex; gap:10px; margin-top:12px;">
+          <div style="flex:1; padding:10px 12px; background:#1a1a1a; border-radius:8px; font-size:12px; color:#888;"><strong style="color:#fff;">Polarity A:</strong> No — it's not core to the ads future, we should divest ownership.</div>
+          <div style="flex:1; padding:10px 12px; background:#1a1a1a; border-radius:8px; font-size:12px; color:#888;"><strong style="color:#fff;">Polarity B:</strong> Yes — the platform is genuinely strategic and worth owning with proper resourcing.</div>
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(255,255,255,0.1); padding:20px 24px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Ownership Anxiety</div>
+        <p style="font-size:15px; line-height:1.6; color:#ddd;">How do we ensure ACE teams don't feel "left holding the baby" as we transition away from the current Stage model?</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <div class="nav-dots" id="nav-dots"></div>
+    <div class="slide-counter" id="slide-counter">1 / 10</div>
+  </div>
+  <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next →</button>
+</div>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  const dotsContainer = document.getElementById('nav-dots');
+  const counter = document.getElementById('slide-counter');
+
+  // Build dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsContainer.appendChild(d);
+  }
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsContainer.children[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    dotsContainer.children[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+    document.getElementById('prev-btn').disabled = current === 0;
+    document.getElementById('next-btn').disabled = current === total - 1;
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+  });
+</script>
+</body>
+</html>
