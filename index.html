@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Stage – Traffic Split</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 40px;
+  }
+
+  .donut-wrap {
+    background: #141414;
+    border: 1px solid #232323;
+    border-radius: 20px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    width: 320px;
+  }
+
+  .donut-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #555;
+    align-self: flex-start;
+  }
+
+  .donut-svg-wrap {
+    position: relative;
+    width: 210px;
+    height: 210px;
+  }
+
+  .donut-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 85%;
+  }
+
+  .donut-legend {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid #232323;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .legend-item:last-child { border-bottom: none; }
+
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .legend-label {
+    color: #bbb;
+    font-size: 13px;
+    flex: 1;
+  }
+
+  .legend-pct {
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  /* Experience sub-rows */
+  .exp-subitems {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .exp-subitem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px 8px 38px;
+    border-bottom: 1px solid #181818;
+  }
+  .exp-subitem:last-child { border-bottom: none; }
+  .exp-sub-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .exp-sub-label {
+    color: #777;
+    font-size: 12px;
+    flex: 1;
+  }
+  .exp-sub-pct {
+    font-size: 12px;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+  <div class="donut-wrap">
+    <div class="donut-title">Total Traffic Split</div>
+
+    <div class="donut-svg-wrap">
+      <!--
+        Circumference = 2π × 15.9 ≈ 99.9
+        Segments clockwise from 12 o'clock:
+          Wrapped             30%  len=29.97  offset= 25.00
+          Playlist Cover Art  17%  len=16.98  offset= -4.97
+          Library Import      10%  len= 9.99  offset=-21.95
+          Consumer Marketing  39%  len=38.96  offset=-31.94
+          Advertisers          4%  len= 3.996 offset=-70.90
+      -->
+      <svg viewBox="0 0 36 36" width="210" height="210">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e1e1e" stroke-width="3.6" />
+        <!-- Wrapped 30% — Spotify green -->
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1DB954" stroke-width="3.6"
+          stroke-dasharray="29.97 69.93" stroke-dashoffset="25.00"
+          stroke-linecap="butt" transform="rotate(-90 18 18)" />
+        <!-- Playlist Cover Art 17% — light green -->
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#4ade80" stroke-width="3.6"
+          stroke-dasharray="16.98 82.92" stroke-dashoffset="-4.97"
+          stroke-linecap="butt" transform="rotate(-90 18 18)" />
+        <!-- Library Import 10% — pale green -->
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#86efac" stroke-width="3.6"
+          stroke-dasharray="9.99 89.91" stroke-dashoffset="-21.95"
+          stroke-linecap="butt" transform="rotate(-90 18 18)" />
+        <!-- Consumer Marketing 39% — blue -->
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#60a5fa" stroke-width="3.6"
+          stroke-dasharray="38.96 60.94" stroke-dashoffset="-31.94"
+          stroke-linecap="butt" transform="rotate(-90 18 18)" />
+        <!-- Advertisers 4% — amber -->
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#F59E0B" stroke-width="3.6"
+          stroke-dasharray="3.996 95.904" stroke-dashoffset="-70.90"
+          stroke-linecap="butt" transform="rotate(-90 18 18)" />
+        <circle cx="18" cy="18" r="13.0" fill="#141414" />
+      </svg>
+
+      <div class="donut-center">
+        <div style="font-size:8.5px; font-weight:600; color:#888; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">Advertising</div>
+        <div style="font-size:34px; font-weight:900; color:#F59E0B; line-height:1;">4%</div>
+        <div style="width:32px; height:2px; background:#F59E0B; opacity:0.4; margin:6px auto;"></div>
+        <div style="font-size:8.5px; font-weight:500; color:#666; letter-spacing:0.05em;">of all traffic</div>
+      </div>
+    </div>
+
+    <div class="donut-legend">
+
+      <!-- Experience header -->
+      <div class="legend-item" style="background:#111; border-bottom:none;">
+        <div class="legend-swatch" style="background:linear-gradient(180deg,#1DB954,#86efac);"></div>
+        <span class="legend-label" style="color:#ddd; font-weight:600;">Experience</span>
+        <span class="legend-pct" style="color:#1DB954;">57%</span>
+      </div>
+
+      <!-- Experience sub-items -->
+      <div class="exp-subitems">
+        <div class="exp-subitem">
+          <div class="exp-sub-dot" style="background:#1DB954;"></div>
+          <span class="exp-sub-label">Wrapped</span>
+          <span class="exp-sub-pct" style="color:#1DB954;">30%</span>
+        </div>
+        <div class="exp-subitem">
+          <div class="exp-sub-dot" style="background:#4ade80;"></div>
+          <span class="exp-sub-label">Playlist Cover Art</span>
+          <span class="exp-sub-pct" style="color:#4ade80;">17%</span>
+        </div>
+        <div class="exp-subitem">
+          <div class="exp-sub-dot" style="background:#86efac;"></div>
+          <span class="exp-sub-label">Library Import</span>
+          <span class="exp-sub-pct" style="color:#86efac;">10%</span>
+        </div>
+      </div>
+
+      <!-- Consumer Marketing -->
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:#60a5fa;"></div>
+        <span class="legend-label">Consumer Marketing</span>
+        <span class="legend-pct" style="color:#60a5fa;">39%</span>
+      </div>
+
+      <!-- Advertising -->
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:#F59E0B;"></div>
+        <span class="legend-label">Advertising</span>
+        <span class="legend-pct" style="color:#F59E0B;">4%</span>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
