@@ -626,6 +626,7 @@
   </div>
   <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next →</button>
   <button class="nav-btn" onclick="resetEdits()" style="opacity:0.4; font-size:11px; padding:8px 12px;">↺ Reset</button>
+  <button class="nav-btn" id="export-btn" onclick="exportEdits()" style="font-size:11px; padding:8px 12px;">📋 Export edits</button>
 </div>
 
 <script>
@@ -724,6 +725,16 @@
       } else {
         el.removeAttribute('contenteditable');
       }
+    });
+  }
+
+  // Export edits to clipboard
+  function exportEdits() {
+    const data = localStorage.getItem(STORAGE_KEY) || '{}';
+    navigator.clipboard.writeText(data).then(() => {
+      const btn = document.getElementById('export-btn');
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => btn.textContent = '📋 Export edits', 2000);
     });
   }
 
