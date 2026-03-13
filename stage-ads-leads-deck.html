@@ -778,7 +778,10 @@
         })
       });
 
-      if (!putRes.ok) throw new Error('Commit failed');
+      if (!putRes.ok) {
+        const errBody = await putRes.json().catch(() => ({}));
+        throw new Error(`${putRes.status}: ${errBody.message || putRes.statusText}`);
+      }
 
       // Clear localStorage — edits are now baked in
       localStorage.removeItem(STORAGE_KEY);
@@ -787,6 +790,7 @@
 
     } catch (e) {
       btn.textContent = '✗ Failed';
+      alert('Publish failed: ' + e.message);
       setTimeout(() => { btn.textContent = '🚀 Publish'; btn.disabled = false; }, 2000);
     }
   }
