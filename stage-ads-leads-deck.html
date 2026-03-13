@@ -625,16 +625,54 @@
     <div class="slide-counter" id="slide-counter">1 / 10</div>
   </div>
   <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next →</button>
+  <button class="nav-btn" onclick="resetEdits()" style="opacity:0.4; font-size:11px; padding:8px 12px;">↺ Reset</button>
 </div>
 
 <script>
+  const STORAGE_KEY = 'stage-deck-edits';
+  const editableSelectors = 'h1, h2, h3, p, li, .label, .card-label, .card-value, .card-desc, .key-message, .subtitle, .tag, .rec-content h3, .rec-content p';
+
+  // Assign stable data-ids to all editable elements
+  document.querySelectorAll('.slides ' + editableSelectors).forEach((el, i) => {
+    el.dataset.eid = i;
+  });
+
+  // Load saved edits from localStorage
+  function loadEdits() {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    Object.entries(saved).forEach(([id, html]) => {
+      const el = document.querySelector(`[data-eid="${id}"]`);
+      if (el) el.innerHTML = html;
+    });
+  }
+
+  // Save a single element's content
+  let saveTimer;
+  function saveEdit(eid, html) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      saved[eid] = html;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    }, 300);
+  }
+
+  // Listen for edits on the slides container (event delegation)
+  document.querySelector('.slides').addEventListener('input', e => {
+    if (e.target.dataset.eid !== undefined) {
+      saveEdit(e.target.dataset.eid, e.target.innerHTML);
+    }
+  });
+
+  loadEdits();
+
+  // Slide navigation
   let current = 0;
   const slides = document.querySelectorAll('.slide');
   const total = slides.length;
   const dotsContainer = document.getElementById('nav-dots');
   const counter = document.getElementById('slide-counter');
 
-  // Build dots
   for (let i = 0; i < total; i++) {
     const d = document.createElement('div');
     d.className = 'dot' + (i === 0 ? ' active' : '');
@@ -661,8 +699,8 @@
     if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
   });
 
+  // Edit mode toggle
   let editMode = false;
-  const editableSelectors = 'h1, h2, h3, p, li, .label, .card-label, .card-value, .card-desc, .key-message, .subtitle, .tag, .rec-content h3, .rec-content p';
 
   function toggleEdit() {
     editMode = !editMode;
@@ -679,6 +717,13 @@
         el.removeAttribute('contenteditable');
       }
     });
+  }
+
+  // Reset all edits
+  function resetEdits() {
+    if (!confirm('Reset all edits and restore original content?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
   }
 </script>
 </body>
