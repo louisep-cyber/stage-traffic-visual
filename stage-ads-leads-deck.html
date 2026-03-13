@@ -747,7 +747,6 @@
 
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      const merged = Object.assign({}, BAKED_EDITS, saved);
 
       const apiUrl = 'https://api.github.com/repos/louisep-cyber/stage-traffic-visual/contents/stage-ads-leads-deck.html';
       let tok = localStorage.getItem('stage-deck-token');
@@ -771,6 +770,11 @@
       }
       const sha = fileData.sha;
       const currentContent = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
+
+      // Merge: latest published edits + local edits on top (so no one's changes get lost)
+      const liveMatch = currentContent.match(/<script type="application\/json" id="baked-edits">\n([\s\S]*?)\n<\/script>/);
+      const liveBaked = liveMatch ? JSON.parse(liveMatch[1]) : {};
+      const merged = Object.assign({}, liveBaked, saved);
 
       // Replace baked-edits JSON
       const newContent = currentContent.replace(
