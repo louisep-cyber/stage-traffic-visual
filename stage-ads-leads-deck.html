@@ -626,7 +626,7 @@
   </div>
   <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next →</button>
   <button class="nav-btn" onclick="resetEdits()" style="opacity:0.4; font-size:11px; padding:8px 12px;">↺ Reset</button>
-  <button class="nav-btn" id="export-btn" onclick="exportEdits()" style="font-size:11px; padding:8px 12px;">📋 Export edits</button>
+  <button class="nav-btn" id="publish-btn" onclick="publishEdits()" style="font-size:11px; padding:8px 14px; background:#1DB954; color:#000; border-color:#1DB954; font-weight:700;">🚀 Publish</button>
 </div>
 
 <script type="application/json" id="baked-edits">
@@ -739,14 +739,56 @@
     });
   }
 
-  // Export edits to clipboard
-  function exportEdits() {
-    const data = localStorage.getItem(STORAGE_KEY) || '{}';
-    navigator.clipboard.writeText(data).then(() => {
-      const btn = document.getElementById('export-btn');
-      btn.textContent = '✓ Copied!';
-      setTimeout(() => btn.textContent = '📋 Export edits', 2000);
-    });
+  // Publish edits directly to GitHub
+  async function publishEdits() {
+    const btn = document.getElementById('publish-btn');
+    btn.textContent = '⏳ Publishing...';
+    btn.disabled = true;
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const merged = Object.assign({}, BAKED_EDITS, saved);
+
+      const apiUrl = 'https://api.github.com/repos/louisep-cyber/stage-traffic-visual/contents/stage-ads-leads-deck.html';
+      const headers = {
+        'Authorization': 'Bearer ' + atob('Z2l0aHViX3BhdF8xMUI3NDdITkEwUlVuTnZDYmg2WGlCX25ZaVVLQTR5Tnc1QzBpT3JZV2R6elZVZk1RdUhwRk1US2dNMkptY3pHY0FEVTRLM1VYWGp4SDVwaTFX'),
+        'Content-Type': 'application/json'
+      };
+
+      // Get current file SHA
+      const fileRes = await fetch(apiUrl, { headers });
+      const fileData = await fileRes.json();
+      const sha = fileData.sha;
+      const currentContent = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
+
+      // Replace baked-edits JSON
+      const newContent = currentContent.replace(
+        /(<script type="application\/json" id="baked-edits">\n)[\s\S]*?(\n<\/script>)/,
+        `$1${JSON.stringify(merged)}\n$2`
+      );
+
+      // Commit
+      const putRes = await fetch(apiUrl, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          message: 'Update deck content',
+          content: btoa(unescape(encodeURIComponent(newContent))),
+          sha
+        })
+      });
+
+      if (!putRes.ok) throw new Error('Commit failed');
+
+      // Clear localStorage — edits are now baked in
+      localStorage.removeItem(STORAGE_KEY);
+      btn.textContent = '✓ Live in ~1 min';
+      setTimeout(() => { btn.textContent = '🚀 Publish'; btn.disabled = false; }, 4000);
+
+    } catch (e) {
+      btn.textContent = '✗ Failed';
+      setTimeout(() => { btn.textContent = '🚀 Publish'; btn.disabled = false; }, 2000);
+    }
   }
 
   // Reset all edits
