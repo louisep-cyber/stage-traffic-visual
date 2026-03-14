@@ -635,6 +635,22 @@
 </script>
 
 <script>
+  // Password gate
+  (function() {
+    const PW_KEY = 'stage-deck-auth';
+    const PASSWORD = 'The Stage';
+    if (localStorage.getItem(PW_KEY) !== PASSWORD) {
+      document.body.style.visibility = 'hidden';
+      const entered = prompt('Enter password to access this deck:');
+      if (entered !== PASSWORD) {
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#555;">Access denied.</div>';
+        throw new Error('Access denied');
+      }
+      localStorage.setItem(PW_KEY, PASSWORD);
+      document.body.style.visibility = '';
+    }
+  })();
+
   const STORAGE_KEY = 'stage-deck-edits-v2';
 
   // Find all elements inside .slides that have direct text content
